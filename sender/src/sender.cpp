@@ -8,10 +8,14 @@ typedef string frame;
 
 
 Sender::Sender(
+            int id,
             char* ip, 
             int port_from_router,
             int port_to_router
         ) {
+    cout<<id<<"***"<<endl;
+    this->id=id;
+    cout<<this->id<<"***"<<endl;
     sockets=vector<Socket*>(10);
     Socket* socket;
     
@@ -43,7 +47,19 @@ void Sender::send_new_frames()
 }
 
 int get_seq_num(string message) {
-    return stoi(message.substr(3, message.size() - 3));
+    int i = 0;
+    for (i; i < message.size(); i++)
+        if (message[i] == DELIMETER)
+            break;
+    i++;
+    string count = "";
+    for (i; i < message.size(); i++){
+        if(message[i]==DELIMETER)
+            break;
+        count += message[i];
+    }
+    cout<<count<<"&&"<<endl;
+    return stoi(count);
 }
 
 
@@ -65,12 +81,28 @@ void Sender::retransmit() {
     }
 }
 
+int get_sender_id(string message){
+    string num="";
+    int i;
+    for(i= message.size()-1;i>=0;i--){
+        if(message[i]==DELIMETER)
+            break;
+    }
+    i++;
+    for (i ; i < message.size() ; i++){
+        num+=message[i];
+    }
+    
+    return stoi(num);
+}
+
+
 
 void Sender::run() {
     int fd;
     int max_sd;
     string input;
-    int id,bytes,room_type;
+    int bytes;
     fd_set master_set, read_set, write_set;
     FD_ZERO(&master_set);
     max_sd = max(receive_fd,send_fd);
@@ -84,9 +116,16 @@ void Sender::run() {
         bytes=select(max_sd + 1, &read_set, NULL, NULL, NULL);
         if (FD_ISSET(receive_fd, &read_set))
         {
-            string recv_message = sockets[receive_fd]->receive(); 
-            if (recv_message == FIRST_ACK)
+            string recv_message = sockets[receive_fd]->receive();
+            cout<<recv_message<<":|||||"<<endl;
+            if(get_sender_id(recv_message)!=this->id){
+                cout << "ridid\n";
+                continue;
+            } 
+            cout<<recv_message<<endl;
+            if (recv_message.substr(0,4) == FIRST_ACK){
                 send_new_frames();
+            }
             else 
             {
                 int seq_num = get_seq_num(recv_message);
@@ -98,7 +137,8 @@ void Sender::run() {
             }  
         }
         if(FD_ISSET(STDIN_FILENO, &read_set)){
-                sockets[send_fd]->send("$" + to_string(message.get_size()));
+                cout<<this->id<<"****"<<endl;
+                sockets[send_fd]->send("$" + to_string(this->id) + DELIMETER + to_string(message.get_size()));
                 FD_CLR(STDIN_FILENO,&master_set);
         }
         if (time_out())
@@ -112,7 +152,7 @@ void Sender::run() {
 
 frame Sender::create_frame(int seq_num)
 {
-    return to_string(seq_num) + DELIMETER + message.get_frame(seq_num); 
+    return to_string(id) + DELIMETER + to_string(seq_num) + DELIMETER + message.get_frame(seq_num); 
 }
 
 frame Sender::get_next_frame() {

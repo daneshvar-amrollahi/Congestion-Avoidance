@@ -21,8 +21,11 @@ router:
 
 .PHONY: run_sender run_receiver run_router
 
-run_sender: sender
-	cd sender && clear && ./sender.out localhost 8001 8002
+run_sender1: sender
+	cd sender && clear && ./sender.out 1 localhost 8001 8002
+
+run_sender2: sender
+	cd sender && clear && ./sender.out 2 localhost 8001 8002
 
 run_receiver: receiver
 	cd receiver && clear && ./receiver.out localhost 8004 8003

@@ -8,6 +8,7 @@
 class Sender {
     public:
         Sender(
+            int id,
             char* ip, 
             int port_from_router,
             int port_to_router
@@ -20,6 +21,7 @@ class Sender {
         bool time_out();
         void retransmit();
     private:
+        int id;
         char* ip;
         int port;
         int send_fd;

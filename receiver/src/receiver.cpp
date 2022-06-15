@@ -50,7 +50,6 @@ void Receiver::run() {
         if (FD_ISSET(receive_fd, &read_set))
         {
             handle_recv_msg(sockets[receive_fd]->receive());            
-            //cout<<sockets[receive_fd]->receive()<<endl;
         }
         if(FD_ISSET(STDIN_FILENO, &read_set)){
             cin>>input;
@@ -122,9 +121,18 @@ void Receiver::handle_recv_msg(std::string message) {
     if (message[0] == '$')
     {
         int sender_id = get_sender_id(message.substr(1, (int)(message.size()) - 1));
+
+        cout << "sender_id=" << sender_id << endl;
+
         this->message[sender_id].set_size(get_packet_count(message));
-        cout<<message<<endl;
-        sockets[send_fd]->send("ACK$" + DELIMETER + to_string(sender_id));
+
+        cout << "recv_message=" << message << endl;
+        
+        string message_to_send = "ACK$" + DELIMETER + to_string(sender_id);
+ 
+        cout << "message_to_send=" << message_to_send << endl;
+
+        sockets[send_fd]->send(message_to_send);
     }else{
         int seq_num = get_seq_num(message);
         string data = get_data(message);
@@ -136,7 +144,7 @@ void Receiver::handle_recv_msg(std::string message) {
             cout << "Received (" << "sender=" << sender_id << ", seq_num=" << seq_num << ", data=" << data << ")" << endl << LOG_DELIM;
             this->message[sender_id].store_frame(seq_num, data);
             
-            sockets[send_fd]->send("ACK" + to_string(LFR[sender_id]) + DELIMETER + to_string(sender_id));
+            sockets[send_fd]->send("ACK" + DELIMETER + to_string(LFR[sender_id]) + DELIMETER + to_string(sender_id));
             
             cout << "Sending ACK" << LFR[sender_id]<< " to " + sender_id << "..." << endl << LOG_DELIM;
             LFR[sender_id]++;

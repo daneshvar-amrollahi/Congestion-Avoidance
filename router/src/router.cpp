@@ -37,6 +37,7 @@ void Router::add_to_buffer(frame message) {
     if(message[0]=='$'){
         sockets[receiver_send_fd]->send(message);
         cout<<"Transmitting message \""<< message <<"\" from sender to receiver..."<<endl<<LOG_DELIM;
+        return;
     }
     if (buffer.size() <= MIN_DROP_THRESHOLD)
     {
