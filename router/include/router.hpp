@@ -2,6 +2,7 @@
 #define __ROUTER_HPP__
 
 #include <vector>
+#include <queue>
 
 #include "../../utils/include/socket.hpp"
 #include "../../utils/defs.hpp"
@@ -18,6 +19,8 @@ class Router {
         );
         void run();
         void add_to_buffer(frame message);
+        void pop_buffer();
+        bool buffer_timeout();
     private:
         char* ip;
         int sender_send_fd;
@@ -25,7 +28,8 @@ class Router {
         int receiver_send_fd;
         int receiver_receive_fd;
         std::vector<Socket*>sockets;
-        std::vector<frame> buffer; 
+        std::queue<frame> buffer; 
+        clock_t last_send;
 };
 
 #endif

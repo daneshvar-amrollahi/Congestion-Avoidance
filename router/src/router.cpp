@@ -29,12 +29,18 @@ Router::Router(
     socket=new Socket(ip,port_from_receiver);
     sockets[socket->fd]=socket;
     receiver_receive_fd=socket->fd;
+
+    last_send=clock();
 }
 
 void Router::add_to_buffer(frame message) {
+    if(message[0]=='$'){
+        sockets[receiver_send_fd]->send(message);
+        cout<<"Transmitting message \""<< message <<"\" from sender to receiver..."<<endl<<LOG_DELIM;
+    }
     if (buffer.size() <= MIN_DROP_THRESHOLD)
     {
-        buffer.push_back(message);
+        buffer.push(message);
         cout << "Buffered " << message << endl << LOG_DELIM;
         return;
     }
@@ -45,7 +51,7 @@ void Router::add_to_buffer(frame message) {
         if(prob <= drop_prob){
             cout<<"Oops I dropped packet no."<< message[0] <<" :)))"<<endl<<LOG_DELIM;
         }else{
-            buffer.push_back(message);
+            buffer.push(message);
             cout << "Buffered " << message << endl << LOG_DELIM;
         }
     }
@@ -81,6 +87,7 @@ void Router::run() {
         if (FD_ISSET(sender_receive_fd, &read_set))
         {
             recieved_message=sockets[sender_receive_fd]->receive();
+
             add_to_buffer(recieved_message);
         }
         if (FD_ISSET(receiver_receive_fd, &read_set))
@@ -89,7 +96,26 @@ void Router::run() {
             sockets[sender_send_fd]->send(recieved_message);
             cout<<"Transmitting message \""<< recieved_message <<"\" from receiver to sender..."<<endl<<LOG_DELIM;
         }
-        memset(buffer, 0, 1024);
+        if(buffer_timeout()){
+            pop_buffer();
+        }
     }
 
-}  
+}
+
+void Router::pop_buffer(){
+    if(!buffer.empty()){
+        sockets[receiver_send_fd]->send(buffer.front());
+        buffer.pop();
+        cout<<"Transmitting buffered message from sender to receiver..."<<endl<<LOG_DELIM;
+    }
+}
+
+bool Router::buffer_timeout(){
+    if((clock()-last_send)/CLOCKS_PER_SEC>BUFFER_SEND_THRESHOLD){
+        last_send=clock();
+        cout<<"BUFFER TIMEOUT"<<endl<<LOG_DELIM;
+        return true;
+    }
+    return false;
+}
