@@ -31,6 +31,29 @@ Router::Router(
     receiver_receive_fd=socket->fd;
 }
 
+void Router::add_to_buffer(frame message) {
+    if (buffer.size() <= MIN_DROP_THRESHOLD)
+    {
+        buffer.push_back(message);
+        cout << "Buffered " << message << endl << LOG_DELIM;
+        return;
+    }
+    if (buffer.size() >= MIN_DROP_THRESHOLD && buffer.size() < MAX_DROP_THRESHOLD)
+    {
+        float prob = float(rand())/RAND_MAX;
+        float drop_prob = RED_DROP_RATE * (( (int)buffer.size() ) - MIN_DROP_THRESHOLD);
+        if(prob <= drop_prob){
+            cout<<"Oops I dropped packet no."<< message[0] <<" :)))"<<endl<<LOG_DELIM;
+        }else{
+            buffer.push_back(message);
+            cout << "Buffered " << message << endl << LOG_DELIM;
+        }
+    }
+    return;
+}
+
+
+
 void Router::run() {
     srand((unsigned)time(NULL));
     int fd;
@@ -58,14 +81,7 @@ void Router::run() {
         if (FD_ISSET(sender_receive_fd, &read_set))
         {
             recieved_message=sockets[sender_receive_fd]->receive();
-
-            float drop = float(rand())/RAND_MAX;
-            if(drop <= DROP_PROB && recieved_message[0]!='$'){
-                cout<<"Oops I dropped packet no."<< recieved_message[0] <<" :)))"<<endl<<LOG_DELIM;
-            }else{
-                sockets[receiver_send_fd]->send(recieved_message);
-                cout<<"Transmitting message \""<< recieved_message <<"\" from sender to receiver..."<<endl<<LOG_DELIM;
-            }
+            add_to_buffer(recieved_message);
         }
         if (FD_ISSET(receiver_receive_fd, &read_set))
         {

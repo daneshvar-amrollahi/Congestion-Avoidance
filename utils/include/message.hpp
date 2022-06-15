@@ -3,8 +3,8 @@
 
 #include<vector>
 #include<string>
+#include "../defs.hpp"
 
-typedef std::string frame;
 
 class Message
 {
