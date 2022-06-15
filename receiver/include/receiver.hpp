@@ -22,10 +22,14 @@ class Receiver {
         int port;
         int send_fd;
         int receive_fd;
-        int LFR;
-        //int LAF;
+        int LFR[MAX_SENDERS];
         std::vector<Socket*>sockets;
-        Message message;
+        Message message[MAX_SENDERS];
+        // Message format: ID;SEQ_NUM;DATA
+        int get_seq_num(std::string message);
+        std::string get_data(std::string message);
+        int get_sender_id(std::string message);
+        int get_packet_count(std::string message);
 };
 
 #endif

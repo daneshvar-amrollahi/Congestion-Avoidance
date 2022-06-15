@@ -12,3 +12,4 @@
 #define     RED_DROP_RATE               0.1
 #define     BUFFER_SEND_THRESHOLD       1
 typedef     std::string                 frame;
+#define     MAX_SENDERS                 22

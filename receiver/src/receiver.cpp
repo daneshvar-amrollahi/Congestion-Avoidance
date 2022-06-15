@@ -1,6 +1,7 @@
 #include "receiver.hpp"
 #include <iostream>
 #include "../../utils/defs.hpp"
+#include <string>
 
 using namespace std;
 
@@ -22,7 +23,8 @@ Receiver::Receiver(
     sockets[socket->fd]=socket;
     receive_fd=socket->fd;
 
-    LFR=0;
+    for (int i = 0; i < MAX_SENDERS; i++)
+        LFR[i]=0;
 }
 
 void Receiver::run() {
@@ -59,7 +61,7 @@ void Receiver::run() {
 
 }  
 
-int get_seq_num(string message) {
+int Receiver::get_sender_id(string message) { 
     string num = "";
     for (int i = 0; i < message.size(); i++)
     {
@@ -70,35 +72,74 @@ int get_seq_num(string message) {
     return 0;
 }
 
-string get_data(string message) {
-    string data = "";
+int Receiver::get_seq_num(string message) { 
     int i = 0;
-    for (i = 0; i < message.size(); i++)
+    for (i; i < message.size(); i++)
         if (message[i] == DELIMETER)
             break;
     i++;
+    string num = "";
+    for (i; i < message.size(); i++)
+    {
+        if (message[i] == DELIMETER)
+            return stoi(num);
+        num += message[i];
+    }
+    return 0;
+}
+
+string Receiver::get_data(string message) { 
+    int c = 0, i = 0;
+    for (i; i < message.size(); i++)
+    {
+        if (message[i] == DELIMETER)
+            c++;
+        if (c == 2)
+            break;
+    }
+    i++;
+    string data = "";
     for (i; i < message.size(); i++)
         data += message[i];
     return data;
 }
 
+// $ID;COUNT
+int Receiver::get_packet_count(std::string message) {
+    int i = 0;
+    for (i; i < message.size(); i++)
+        if (message[i] == DELIMETER)
+            break;
+    i++;
+    string count = "";
+    for (i; i < message.size(); i++)
+        count += message[i];
+    return stoi(count);
+}
+
+
 void Receiver::handle_recv_msg(std::string message) {
     if (message[0] == '$')
     {
-        this->message.set_size(stoi(message.substr(1, (int)(message.size()) - 1)));
+        int sender_id = get_sender_id(message.substr(1, (int)(message.size()) - 1));
+        this->message[sender_id].set_size(get_packet_count(message));
         cout<<message<<endl;
-        sockets[send_fd]->send("ACK$");
+        sockets[send_fd]->send("ACK$" + DELIMETER + to_string(sender_id));
     }else{
         int seq_num = get_seq_num(message);
         string data = get_data(message);
-        if(seq_num!=LFR){
-            cout<<"Discarded frame no." <<seq_num << " saying: " << data << endl<<LOG_DELIM;
+        int sender_id = get_sender_id(message);
+        if(seq_num!=LFR[sender_id]){
+
+            cout << "Discarded (" << "sender=" << sender_id << ", seq_num=" << seq_num << ", data=" << data << ")" << endl << LOG_DELIM;
         }else{
-            cout << "Received frame no." <<seq_num << " saying: " << data << endl<<LOG_DELIM;
-            this->message.store_frame(seq_num, data);
-            sockets[send_fd]->send("ACK" + to_string(LFR));
-            cout<<"Sending ACK"<<LFR<<"..."<<endl<<LOG_DELIM;
-            LFR++;
+            cout << "Received (" << "sender=" << sender_id << ", seq_num=" << seq_num << ", data=" << data << ")" << endl << LOG_DELIM;
+            this->message[sender_id].store_frame(seq_num, data);
+            
+            sockets[send_fd]->send("ACK" + to_string(LFR[sender_id]) + DELIMETER + to_string(sender_id));
+            
+            cout << "Sending ACK" << LFR[sender_id]<< " to " + sender_id << "..." << endl << LOG_DELIM;
+            LFR[sender_id]++;
         }
     }
 
