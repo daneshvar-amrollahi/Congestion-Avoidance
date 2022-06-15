@@ -1,6 +1,5 @@
 #define     SWS                         4
 #define     RWS                         4
-#define     DELIMETER                   ':'
 #define     FIRST_ACK                   "ACK$"
 #define     PACKET_LOST_THRESHOLD       10
 #define     DROP_PROB                   0.1
@@ -11,5 +10,6 @@
 #define     MAX_DROP_THRESHOLD          3
 #define     RED_DROP_RATE               0.1
 #define     BUFFER_SEND_THRESHOLD       1
-typedef     std::string                 frame;
 #define     MAX_SENDERS                 22
+typedef     std::string                 frame;
+#define     DELIMETER                   ':'

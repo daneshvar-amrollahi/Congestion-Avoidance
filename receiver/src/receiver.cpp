@@ -128,7 +128,8 @@ void Receiver::handle_recv_msg(std::string message) {
 
         cout << "recv_message=" << message << endl;
         
-        string message_to_send = "ACK$" + DELIMETER + to_string(sender_id);
+        string boz(1, DELIMETER);
+        string message_to_send = "ACK$" + boz + to_string(sender_id);
  
         cout << "message_to_send=" << message_to_send << endl;
 
@@ -144,9 +145,13 @@ void Receiver::handle_recv_msg(std::string message) {
             cout << "Received (" << "sender=" << sender_id << ", seq_num=" << seq_num << ", data=" << data << ")" << endl << LOG_DELIM;
             this->message[sender_id].store_frame(seq_num, data);
             
-            sockets[send_fd]->send("ACK" + DELIMETER + to_string(LFR[sender_id]) + DELIMETER + to_string(sender_id));
+            string boz(1, DELIMETER);
             
-            cout << "Sending ACK" << LFR[sender_id]<< " to " + sender_id << "..." << endl << LOG_DELIM;
+            string message_to_send = "ACK" + boz + to_string(LFR[sender_id]) + boz + to_string(sender_id); 
+            sockets[send_fd]->send(message_to_send);
+            
+            cout << "Sending " << message_to_send << endl << LOG_DELIM;
+            //cout << "Sending ACK" << LFR[sender_id]<< " to " + sender_id << "..." << endl << LOG_DELIM;
             LFR[sender_id]++;
         }
     }

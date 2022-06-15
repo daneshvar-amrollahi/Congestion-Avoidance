@@ -33,16 +33,64 @@ Router::Router(
     last_send=clock();
 }
 
+int Router::get_sender_id(string message) { 
+    string num = "";
+    for (int i = 0; i < message.size(); i++)
+    {
+        if (message[i] == DELIMETER)
+            return stoi(num);
+        num += message[i];
+    }
+    return 0;
+}
+
+int Router::get_seq_num(string message) { 
+    int i = 0;
+    for (i; i < message.size(); i++)
+        if (message[i] == DELIMETER)
+            break;
+    i++;
+    string num = "";
+    for (i; i < message.size(); i++)
+    {
+        if (message[i] == DELIMETER)
+            return stoi(num);
+        num += message[i];
+    }
+    return 0;
+}
+
+string Router::get_data(string message) { 
+    int c = 0, i = 0;
+    for (i; i < message.size(); i++)
+    {
+        if (message[i] == DELIMETER)
+            c++;
+        if (c == 2)
+            break;
+    }
+    i++;
+    string data = "";
+    for (i; i < message.size(); i++)
+        data += message[i];
+    return data;
+}
+
 void Router::add_to_buffer(frame message) {
     if(message[0]=='$'){
         sockets[receiver_send_fd]->send(message);
         cout<<"Transmitting message \""<< message <<"\" from sender to receiver..."<<endl<<LOG_DELIM;
         return;
     }
+
+    int seq_num = get_seq_num(message);
+    string data = get_data(message);
+    int sender_id = get_sender_id(message);
+
     if (buffer.size() <= MIN_DROP_THRESHOLD)
     {
         buffer.push(message);
-        cout << "Buffered " << message << endl << LOG_DELIM;
+        cout << "Buffered (" << "sender=" << sender_id << ", seq_num=" << seq_num << ", data=" << data << ")" << endl << LOG_DELIM;
         return;
     }
     if (buffer.size() >= MIN_DROP_THRESHOLD && buffer.size() < MAX_DROP_THRESHOLD)
@@ -53,7 +101,7 @@ void Router::add_to_buffer(frame message) {
             cout<<"Oops I dropped packet no."<< message[0] <<" :)))"<<endl<<LOG_DELIM;
         }else{
             buffer.push(message);
-            cout << "Buffered " << message << endl << LOG_DELIM;
+            cout << "Buffered (" << "sender=" << sender_id << ", seq_num=" << seq_num << ", data=" << data << ")" << endl << LOG_DELIM;
         }
     }
     return;

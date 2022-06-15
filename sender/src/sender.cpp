@@ -13,9 +13,7 @@ Sender::Sender(
             int port_from_router,
             int port_to_router
         ) {
-    cout<<id<<"***"<<endl;
     this->id=id;
-    cout<<this->id<<"***"<<endl;
     sockets=vector<Socket*>(10);
     Socket* socket;
     
@@ -58,7 +56,6 @@ int get_seq_num(string message) {
             break;
         count += message[i];
     }
-    cout<<count<<"&&"<<endl;
     return stoi(count);
 }
 
@@ -117,12 +114,10 @@ void Sender::run() {
         if (FD_ISSET(receive_fd, &read_set))
         {
             string recv_message = sockets[receive_fd]->receive();
-            cout<<recv_message<<":|||||"<<endl;
             if(get_sender_id(recv_message)!=this->id){
-                cout << "ridid\n";
                 continue;
             } 
-            cout<<recv_message<<endl;
+            cout<<"recv_message=" << recv_message<<endl;
             if (recv_message.substr(0,4) == FIRST_ACK){
                 send_new_frames();
             }
@@ -137,7 +132,6 @@ void Sender::run() {
             }  
         }
         if(FD_ISSET(STDIN_FILENO, &read_set)){
-                cout<<this->id<<"****"<<endl;
                 sockets[send_fd]->send("$" + to_string(this->id) + DELIMETER + to_string(message.get_size()));
                 FD_CLR(STDIN_FILENO,&master_set);
         }

@@ -21,6 +21,7 @@ class Router {
         void add_to_buffer(frame message);
         void pop_buffer();
         bool buffer_timeout();
+        
     private:
         char* ip;
         int sender_send_fd;
@@ -30,6 +31,9 @@ class Router {
         std::vector<Socket*>sockets;
         std::queue<frame> buffer; 
         clock_t last_send;
+        int get_seq_num(std::string message);
+        std::string get_data(std::string message);
+        int get_sender_id(std::string message);
 };
 
 #endif
