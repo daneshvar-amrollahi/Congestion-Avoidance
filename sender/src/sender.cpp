@@ -1,5 +1,6 @@
 #include "sender.hpp"
 #include "../../utils/defs.hpp"
+#include<stdio.h>
 
 using namespace std;
 
@@ -37,6 +38,7 @@ void Sender::send_new_frames()
         cout << "Sending frame " << LFS << "..." << endl<<LOG_DELIM;
         sent_times[LFS] = clock();
         sockets[send_fd]->send(get_next_frame());
+        sleep(1.5);
     }
 }
 
