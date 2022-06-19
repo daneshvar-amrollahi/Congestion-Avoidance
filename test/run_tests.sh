@@ -16,6 +16,6 @@ make
 for i in {1..20}
 do
     gnome-terminal -e "./sender.out $i localhost 8001 8002"   
-    sleep 2
+    sleep 0.1
 done
 
