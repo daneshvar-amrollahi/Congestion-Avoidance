@@ -106,6 +106,9 @@ void Sender::run() {
     FD_SET(STDIN_FILENO, &master_set);
     FD_SET(send_fd, &master_set);
     FD_SET(receive_fd, &master_set);
+
+    int starting_time;
+
     while (1)
     {
 
@@ -131,6 +134,7 @@ void Sender::run() {
             }  
         }
         if(FD_ISSET(STDIN_FILENO, &read_set)){
+                starting_time = clock();
                 sockets[send_fd]->send("$" + to_string(this->id) + DELIMETER + to_string(message.get_size()));
                 FD_CLR(STDIN_FILENO,&master_set);
         }
@@ -144,6 +148,10 @@ void Sender::run() {
             break;
         }
     }
+
+    int exec_time = (clock()-starting_time)/CLOCKS_PER_SEC;
+
+    cout << "EXECUTION TIME: " << exec_time << "s" << endl;
 }  
 
 frame Sender::create_frame(int seq_num)
