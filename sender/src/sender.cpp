@@ -139,8 +139,11 @@ void Sender::run() {
             cout << "TIMEOUT occured for " << LAR + 1 << endl<<LOG_DELIM;
             retransmit();
         }
+        if(LAR==message.get_size()-1){
+            cout<<"TRANSMIT IS OVER"<<endl<<LOG_DELIM;
+            break;
+        }
     }
-
 }  
 
 frame Sender::create_frame(int seq_num)
@@ -153,10 +156,6 @@ frame Sender::get_next_frame() {
     string ret = create_frame(LFS);
     LFS++;
     return ret;
-
-    // string sent_message=to_string(LFS) + DELIMETER + message.get_frame(LFS);
-    // LFS++;
-    // return sent_message; 
 }
 
 bool Sender::all_frames_sent(){

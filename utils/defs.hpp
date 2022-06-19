@@ -5,7 +5,7 @@
 #define     DROP_PROB                   0.1
 #define     LOG_DELIM                   "-----------------------------------------------------\n"
 #define     FILE_ADDRESS                "../test/francais.txt"
-#define     CHUNK_SIZE                  10
+#define     CHUNK_SIZE                  1500
 #define     MIN_DROP_THRESHOLD          1
 #define     MAX_DROP_THRESHOLD          3
 #define     RED_DROP_RATE               0.1

@@ -35,7 +35,8 @@ SocketSensitivityList = 				\
 
 MessageSensitivityList = 				\
 	$(SRC_UTILS_DIR)/message.cpp		\
-	$(INCLUDE_UTILS_DIR)/message.hpp
+	$(INCLUDE_UTILS_DIR)/message.hpp	\
+	../utils/defs.hpp
 
 
 all: $(BUILD_DIR) $(EXECUTABLE_FILE)
