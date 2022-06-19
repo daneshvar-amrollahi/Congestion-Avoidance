@@ -76,6 +76,7 @@ string Router::get_data(string message) {
     return data;
 }
 
+
 void Router::add_to_buffer(frame message) {
     if(message[0]=='$'){
         sockets[receiver_send_fd]->send(message);
@@ -86,23 +87,24 @@ void Router::add_to_buffer(frame message) {
     int seq_num = get_seq_num(message);
     string data = get_data(message);
     int sender_id = get_sender_id(message);
-
     if (buffer.size() <= MIN_DROP_THRESHOLD)
     {
         buffer.push(message);
         cout << "Buffered (" << "sender=" << sender_id << ", seq_num=" << seq_num << ", data=" << data << ")" << endl << LOG_DELIM;
         return;
     }
-    if (buffer.size() >= MIN_DROP_THRESHOLD && buffer.size() < MAX_DROP_THRESHOLD)
+    else if (buffer.size() >= MIN_DROP_THRESHOLD && buffer.size() < MAX_DROP_THRESHOLD)
     {
         float prob = float(rand())/RAND_MAX;
         float drop_prob = RED_DROP_RATE * (( (int)buffer.size() ) - MIN_DROP_THRESHOLD);
         if(prob <= drop_prob){
-            cout<<"Oops I dropped packet no."<< message[0] <<" :)))"<<endl<<LOG_DELIM;
+            cout<<"Oops I dropped ("<< "sender=" << sender_id << ", seq_num=" << seq_num << ", data=" << data << ")" <<" :)))"<<endl<<LOG_DELIM;
         }else{
             buffer.push(message);
             cout << "Buffered (" << "sender=" << sender_id << ", seq_num=" << seq_num << ", data=" << data << ")" << endl << LOG_DELIM;
         }
+    }else{
+        cout<<"Oops the buffer is full -> dropped ("<< "sender=" << sender_id << ", seq_num=" << seq_num << ", data=" << data << ")" <<" :)))"<<endl<<LOG_DELIM;
     }
     return;
 }
@@ -136,7 +138,6 @@ void Router::run() {
         if (FD_ISSET(sender_receive_fd, &read_set))
         {
             recieved_message=sockets[sender_receive_fd]->receive();
-
             add_to_buffer(recieved_message);
         }
         if (FD_ISSET(receiver_receive_fd, &read_set))
@@ -154,16 +155,22 @@ void Router::run() {
 
 void Router::pop_buffer(){
     if(!buffer.empty()){
-        sockets[receiver_send_fd]->send(buffer.front());
+        frame message = buffer.front();
+        int seq_num = get_seq_num(message);
+        string data = get_data(message);
+        int sender_id = get_sender_id(message);
+
+        sockets[receiver_send_fd]->send(message);
         buffer.pop();
-        cout<<"Transmitting buffered message from sender to receiver..."<<endl<<LOG_DELIM;
+
+        cout<<"Transmitting (" << "sender=" << sender_id << ", seq_num=" << seq_num << ", data=" << data << ")"  <<" from buffer..."<<endl<<LOG_DELIM;
     }
 }
 
 bool Router::buffer_timeout(){
     if((clock()-last_send)/CLOCKS_PER_SEC>BUFFER_SEND_THRESHOLD){
         last_send=clock();
-        cout<<"BUFFER TIMEOUT"<<endl<<LOG_DELIM;
+        cout<<"BUFFER-PROCESSING DONE"<<endl<<LOG_DELIM;
         return true;
     }
     return false;

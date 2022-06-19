@@ -117,7 +117,7 @@ void Sender::run() {
             if(get_sender_id(recv_message)!=this->id){
                 continue;
             } 
-            cout<<"recv_message=" << recv_message<<endl;
+            cout<<"recv_message = " << recv_message<<endl<<LOG_DELIM;
             if (recv_message.substr(0,4) == FIRST_ACK){
                 send_new_frames();
             }
@@ -125,7 +125,6 @@ void Sender::run() {
             {
                 int seq_num = get_seq_num(recv_message);
                 LAR = seq_num;
-                cout << recv_message << endl<<LOG_DELIM;
                 if(!all_frames_sent()){
                         send_new_frames();
                 }
