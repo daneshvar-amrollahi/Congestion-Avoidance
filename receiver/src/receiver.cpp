@@ -110,17 +110,11 @@ void Receiver::handle_recv_msg(std::string message) {
     {
         int sender_id = get_sender_id(message.substr(1, (int)(message.size()) - 1));
 
-        cout << "sender_id=" << sender_id << endl;
-
         this->message[sender_id].set_size(get_packet_count(message));
-
-        cout << "recv_message=" << message << endl;
         
         string boz(1, DELIMETER);
         string message_to_send = "ACK$" + boz + to_string(sender_id);
  
-        cout << "message_to_send=" << message_to_send << endl;
-
         sockets[send_fd]->send(message_to_send);
     }else{
         int seq_num = get_seq_num(message);
