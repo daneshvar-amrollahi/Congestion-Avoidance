@@ -109,6 +109,11 @@ void Sender::run() {
 
     int starting_time;
 
+    sleep(5);
+
+    starting_time = clock();
+    sockets[send_fd]->send("$" + to_string(this->id) + DELIMETER + to_string(message.get_size()));
+
     while (1)
     {
 
@@ -132,11 +137,6 @@ void Sender::run() {
                         send_new_frames();
                 }
             }  
-        }
-        if(FD_ISSET(STDIN_FILENO, &read_set)){
-                starting_time = clock();
-                sockets[send_fd]->send("$" + to_string(this->id) + DELIMETER + to_string(message.get_size()));
-                FD_CLR(STDIN_FILENO,&master_set);
         }
         if (time_out())
         {
