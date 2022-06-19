@@ -1,13 +1,13 @@
 #define     SWS                         4
 #define     RWS                         4
 #define     FIRST_ACK                   "ACK$"
-#define     PACKET_LOST_THRESHOLD       10
+#define     PACKET_LOST_THRESHOLD       5
 #define     DROP_PROB                   0.1
 #define     LOG_DELIM                   "-----------------------------------------------------\n"
 #define     FILE_ADDRESS                "../test/francais.txt"
 #define     CHUNK_SIZE                  1500
-#define     MIN_DROP_THRESHOLD          1
-#define     MAX_DROP_THRESHOLD          3
+#define     MIN_DROP_THRESHOLD          10
+#define     MAX_DROP_THRESHOLD          20
 #define     RED_DROP_RATE               0.1
 #define     BUFFER_SEND_THRESHOLD       1
 #define     MAX_SENDERS                 22
