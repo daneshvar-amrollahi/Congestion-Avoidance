@@ -150,6 +150,8 @@ void Sender::run() {
     int exec_time = (clock()-starting_time)/CLOCKS_PER_SEC;
 
     cout << "EXECUTION TIME: " << exec_time << "s" << endl;
+
+    while (1);
 }  
 
 frame Sender::create_frame(int seq_num)
