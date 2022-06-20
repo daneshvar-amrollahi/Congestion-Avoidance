@@ -161,7 +161,7 @@ void Router::pop_buffer(){
 }
 
 bool Router::buffer_timeout(){
-    if((clock()-last_send)/CLOCKS_PER_SEC>BUFFER_SEND_THRESHOLD){
+    if((clock()-last_send)/(CLOCKS_PER_SEC/1000)>BUFFER_SEND_THRESHOLD){
         last_send=clock();
         cout<<"BUFFER-PROCESSING DONE"<<endl<<LOG_DELIM;
         return true;

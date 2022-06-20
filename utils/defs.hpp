@@ -1,7 +1,7 @@
 #define     SWS                         4
 #define     RWS                         4
 #define     FIRST_ACK                   "ACK$"
-#define     PACKET_LOST_THRESHOLD       5
+#define     PACKET_LOST_THRESHOLD       3
 #define     DROP_PROB                   0.1
 #define     LOG_DELIM                   "-----------------------------------------------------\n"
 #define     FILE_ADDRESS                "../test/francais.txt"
